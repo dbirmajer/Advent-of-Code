@@ -1,0 +1,28 @@
+import re
+
+bag = {"red": 12, "green": 13, "blue": 14}
+
+pattern = "Game (\d+): (.+)$"
+marbles_re = "(\d+ green|\d+ red|\d+ blue)"
+
+filename = "input.txt"
+with open(filename) as games_file:
+    acc = 0
+    for line in games_file:
+        m = re.match(pattern, line)
+        if bool(m):
+            arr = m.group(2).split(";")
+            flag = True
+            for s in arr:
+                for t in re.findall(marbles_re, s):
+                    value, color = re.match("(\d+) ([a-z]+)", t).groups()
+                    game = {}
+                    game[color] = int(value)
+                    # flag = flag and all(
+                    #     game[color] <= bag[color] for color in game.keys()
+                    # )
+                    flag = flag and (game[color] <= bag[color])
+            if flag:
+                #                print(m.group(1), flag)
+                acc += int(m.group(1))
+print(acc)
