@@ -17,28 +17,47 @@ def wrapper(lines: list[str]) -> list[str]:
 def find_parts(rows: list[str]) -> list[int]:
     '''input: a list of 3 rows from the wrapperd matrix
     output: the list of parts on the middle row'''
-    # print("rows", rows)
+    for i in range(3):
+        print(rows[i])
+    print()
     gears_it = re.finditer(r"(\*)", rows[1])
-    numbers_it = re.finditer(r"(\d+)", rows[1])
     accum = 0
+    numbers_0 = list(re.finditer(r"(\d+)", rows[0]))
+    numbers_1 = list(re.finditer(r"(\d+)", rows[1]))
+    numbers_2 = list(re.finditer(r"(\d+)", rows[2]))
+    numbers_02 = numbers_0 + numbers_2    
     for m in gears_it:
-        # print(rows[1])
-        print(m.span())
-    for m in numbers_it:
-        start, end = m.span()
-        above = all(c == '.' for c in rows[0][start-1 : end + 1])
-        below = all(c == '.' for c in rows[2][start-1 : end + 1])
-        left = all(c == '.' for c in [rows[0][start - 1], rows[1][start - 1], rows[2][start - 1]])
-        right = all(c == '.' for c in [rows[0][end], rows[1][end], rows[2][end]])
-        if not (all((above, below, left, right))):
-            accum += int(m.group(0))
+        print(f"m.span() = {m.span()}")
+        adjacent = 0
+        ratio = 1
+        ls = []
+        gear, _ = [int(v) for v in m.span()]
+        # print(f"gear = {gear}")
+        for n in numbers_02:
+            start, end = n.span()
+            if (start <= gear - 1 and end >= gear) or  (gear <= end <= gear + 2) or (gear - 1 <= start <= gear + 1):
+                adjacent += 1
+                ratio *= int(n.group(0))
+                ls.append(int(n.group(0)))
+                #print(f"{n.group(0)}, gear = {gear}, start = {start}, end = {end}, adjacent = {adjacent}")
+        for n in numbers_1:
+            start, end = n.span()
+            print(f"gear = {gear}, {n.group(0)}, start = {start}, end = {end}")
+            if (end == gear) or (start == gear + 1):
+                adjacent += 1
+                ratio *= int(n.group(0))
+                ls.append(int(n.group(0)))
+                print(f"{n.group(0)}, gear = {gear}, start = {start}, end = {end}, adjacent = {adjacent}")
+        if (adjacent == 2):
+            print(ls)
+            print(f"these two ratio = {ratio}")
+            accum += ratio
     return accum
 
 def main():
-    matrix = wrapper(process_input("example.txt"))
+    matrix = wrapper(process_input("input.txt"))
     accum = 0
     for i in range(len(matrix) - 2):
-        # find_parts(matrix[i : i + 3])
         accum += find_parts(matrix[i : i + 3])
     print(accum)
 
